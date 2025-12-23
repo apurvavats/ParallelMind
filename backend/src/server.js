@@ -107,48 +107,95 @@
 
 
 
+// import express from "express";
+// import cors from "cors";
+// import dotenv from "dotenv";
+
+// // Import Routes (Ensure these files exist in /src/routes/)
+// import authRoutes from "./routes/authRoutes.js";
+// import projectRoutes from "./routes/projectRoutes.js";
+// import uiRoutes from "./routes/uiRoutes.js";
+// import historyRoutes from "./routes/historyRoutes.js";
+// import feedbackRoutes from "./routes/feedbackRoutes.js";
+// dotenv.config();
+
+// const app = express();
+// const PORT = process.env.PORT || 5000;
+
+// // Middleware
+
+// app.use(
+//   cors({
+//     origin: ["http://localhost:5173", "http://localhost:5174"],
+//     credentials: true,
+//   })
+// );
+
+
+// app.use(express.json());
+
+// // --- MOUNT ROUTES ---
+// app.use("/auth", authRoutes);       // http://localhost:5000/auth/...
+// app.use("/projects", projectRoutes); // http://localhost:5000/projects/...
+// app.use("/ui", uiRoutes);           // http://localhost:5000/ui/... (CRITICAL for generator)
+// app.use("/history", historyRoutes); // http://localhost:5000/history/...
+// app.use("/feedback", feedbackRoutes);
+// // Basic Health Check (Open http://localhost:5000 in browser to test)
+// app.get("/", (req, res) => {
+//   res.send("✅ ParallelMind Backend is Running!");
+// });
+
+// // Start Server
+// app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-// Import Routes (Ensure these files exist in /src/routes/)
+// Import Routes
 import authRoutes from "./routes/authRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import uiRoutes from "./routes/uiRoutes.js";
 import historyRoutes from "./routes/historyRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
+
 dotenv.config();
 
 const app = express();
+
+// --- CRITICAL UPDATE FOR DEPLOYMENT ---
+// Render will automatically provide a PORT environment variable.
+// If it's missing, it falls back to 5000.
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-
+// --- UPDATED CORS SETTINGS ---
+// We change origin to "*" to allow ANY frontend (Vercel) to talk to this backend.
+// This prevents "CORS Errors" immediately after deployment.
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: "*", // 👈 CHANGED: Allows access from Vercel, Localhost, anywhere
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
 
 app.use(express.json());
 
 // --- MOUNT ROUTES ---
-app.use("/auth", authRoutes);       // http://localhost:5000/auth/...
-app.use("/projects", projectRoutes); // http://localhost:5000/projects/...
-app.use("/ui", uiRoutes);           // http://localhost:5000/ui/... (CRITICAL for generator)
-app.use("/history", historyRoutes); // http://localhost:5000/history/...
+app.use("/auth", authRoutes);
+app.use("/projects", projectRoutes);
+app.use("/ui", uiRoutes);
+app.use("/history", historyRoutes);
 app.use("/feedback", feedbackRoutes);
-// Basic Health Check (Open http://localhost:5000 in browser to test)
+
+// Basic Health Check (Useful to check if Render deploy succeeded)
 app.get("/", (req, res) => {
   res.send("✅ ParallelMind Backend is Running!");
 });
 
 // Start Server
 app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
-
-
 
 
 

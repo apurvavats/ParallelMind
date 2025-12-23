@@ -182,6 +182,7 @@ import axios from "axios";
 import { ArrowLeft, Mail, Github, Linkedin, Send, MessageSquare, CheckCircle, Loader2 } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { VITE_API_URL } from "../config";
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -198,7 +199,7 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/feedback", formData);
+      await axios.post(`${VITE_API_URL}/feedback`, formData);
 
       setSuccess(true);
       setFormData({ name: "", email: "", message: "" });

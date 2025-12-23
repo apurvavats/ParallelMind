@@ -636,6 +636,7 @@ import axios from "axios";
 import { Loader2, X, Rocket } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import SimplePreview from "./SimplePreview"; 
+import { VITE_API_URL } from "../config";
 
 export default function UiPreviewModal({ open, onClose, variant }) {
   const { token } = useAuth();
@@ -655,7 +656,7 @@ export default function UiPreviewModal({ open, onClose, variant }) {
     // 1. Fetch the raw code from your backend
     axios
       .post(
-        "http://localhost:5000/ui/generate", 
+        `${VITE_API_URL}/ui/generate`, 
         { variant },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -682,7 +683,7 @@ export default function UiPreviewModal({ open, onClose, variant }) {
     
     try {
       const res = await axios.post(
-        "http://localhost:5000/ui/deploy", 
+        `${VITE_API_URL}/ui/deploy`, 
         { 
           code: code, 
           variant_name: variant.variant_name,
