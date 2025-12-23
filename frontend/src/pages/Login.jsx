@@ -109,6 +109,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import { VITE_API_URL } from "../config";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -123,7 +124,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/auth/login", {
+      const res = await axios.post(`${VITE_API_URL}/auth/login`, {
         email,
         password,
       });
