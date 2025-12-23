@@ -631,9 +631,158 @@
 // }
 
 
+// import { useEffect, useState } from "react";
+// import axios from "axios";
+// import { Loader2, X, Rocket } from "lucide-react";
+// import { useAuth } from "../context/AuthContext";
+// import SimplePreview from "./SimplePreview"; 
+// import { VITE_API_URL } from "../config";
+
+// export default function UiPreviewModal({ open, onClose, variant }) {
+//   const { token } = useAuth();
+  
+//   const [code, setCode] = useState(null); 
+//   const [loading, setLoading] = useState(false);
+  
+//   // New state for deployment loading status
+//   const [deploying, setDeploying] = useState(false); 
+
+//   useEffect(() => {
+//     if (!open || !variant) return;
+
+//     setCode(null);
+//     setLoading(true);
+
+//     // 1. Fetch the raw code from your backend
+//     axios
+//       .post(
+//         `${VITE_API_URL}/ui/generate`, 
+//         { variant },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       )
+//       .then((res) => {
+//         if (!res.data || !res.data.code) {
+//           console.error("No code received:", res.data);
+//           alert("Backend sent empty code.");
+//           return;
+//         }
+//         setCode(res.data.code);
+//       })
+//       .catch((err) => {
+//         console.error("UI GENERATE ERR:", err);
+//         alert("Failed to generate UI. Check backend console.");
+//       })
+//       .finally(() => setLoading(false));
+//   }, [open, variant, token]);
+
+//   // --- HANDLE DEPLOYMENT ---
+//   const handleDeploy = async () => {
+//     if (!code) return;
+    
+//     setDeploying(true);
+    
+//     try {
+//       const res = await axios.post(
+//         `${VITE_API_URL}/ui/deploy`, 
+//         { 
+//           code: code, 
+//           variant_name: variant.variant_name,
+//           variant_id: variant.id // 👈 CRITICAL ADDITION: Needed for DB Link Caching
+//         },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+      
+//       // Success!
+//       alert(`Deployment Successful! Your site is live at: \n${res.data.url}`);
+//       window.open(res.data.url, "_blank"); // Open the live site
+      
+//     } catch (err) {
+//       console.error("DEPLOY ERR:", err);
+//       alert("Deployment failed. See console for details.");
+//     } finally {
+//       setDeploying(false);
+//     }
+//   };
+
+//   if (!open) return null;
+
+//   return (
+//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+//       <div className="w-full max-w-6xl h-[90vh] bg-[#0b0520] rounded-2xl border border-gray-800 flex flex-col shadow-2xl overflow-hidden">
+        
+//         {/* --- HEADER --- */}
+//         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-[#151030]">
+//           <div>
+//             <h3 className="text-lg font-bold text-white">
+//               UI Preview
+//             </h3>
+//             <p className="text-xs text-gray-400">
+//               Generated based on: {variant?.variant_name || "Custom Prompt"}
+//             </p>
+//           </div>
+
+//           <button
+//             onClick={onClose}
+//             className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+//           >
+//             <X size={20} />
+//           </button>
+//         </div>
+
+//         {/* --- MAIN CONTENT (The Iframe) --- */}
+//         <div className="flex-1 bg-[#0f0c29] relative overflow-hidden">
+//           {loading && (
+//             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0f0c29]">
+//               <Loader2 className="animate-spin text-purple-500 mb-4" size={40} />
+//               <p className="text-gray-400 animate-pulse">Generating your UI...</p>
+//             </div>
+//           )}
+
+//           {!loading && code && (
+//             <div className="w-full h-full">
+//                <SimplePreview code={code} />
+//             </div>
+//           )}
+//         </div>
+
+//         {/* --- FOOTER --- */}
+//         <div className="p-4 border-t border-gray-800 bg-[#151030] flex items-center justify-between">
+//           <div className="text-sm text-gray-400">
+//              Preview running in local browser environment.
+//           </div>
+
+//           <button
+//             onClick={handleDeploy}
+//             disabled={loading || deploying || !code}
+//             className={`flex items-center gap-2 px-5 py-2.5 font-medium rounded-lg transition-all shadow-lg 
+//               ${loading || deploying || !code 
+//                 ? "bg-gray-700 text-gray-400 cursor-not-allowed" 
+//                 : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-900/20"
+//               }`}
+//           >
+//             {deploying ? (
+//               <>
+//                 <Loader2 size={18} className="animate-spin" />
+//                 Deploying to Vercel...
+//               </>
+//             ) : (
+//               <>
+//                 <Rocket size={18} />
+//                 Deploy to Live
+//               </>
+//             )}
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Loader2, X, Rocket } from "lucide-react";
+import { Loader2, X, ExternalLink } from "lucide-react"; // 👈 Changed Icon to ExternalLink
 import { useAuth } from "../context/AuthContext";
 import SimplePreview from "./SimplePreview"; 
 import { VITE_API_URL } from "../config";
@@ -644,8 +793,7 @@ export default function UiPreviewModal({ open, onClose, variant }) {
   const [code, setCode] = useState(null); 
   const [loading, setLoading] = useState(false);
   
-  // New state for deployment loading status
-  const [deploying, setDeploying] = useState(false); 
+  // (Removed 'deploying' state - not needed anymore)
 
   useEffect(() => {
     if (!open || !variant) return;
@@ -675,33 +823,18 @@ export default function UiPreviewModal({ open, onClose, variant }) {
       .finally(() => setLoading(false));
   }, [open, variant, token]);
 
-  // --- HANDLE DEPLOYMENT ---
-  const handleDeploy = async () => {
-    if (!code) return;
-    
-    setDeploying(true);
-    
-    try {
-      const res = await axios.post(
-        `${VITE_API_URL}/ui/deploy`, 
-        { 
-          code: code, 
-          variant_name: variant.variant_name,
-          variant_id: variant.id // 👈 CRITICAL ADDITION: Needed for DB Link Caching
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      // Success!
-      alert(`Deployment Successful! Your site is live at: \n${res.data.url}`);
-      window.open(res.data.url, "_blank"); // Open the live site
-      
-    } catch (err) {
-      console.error("DEPLOY ERR:", err);
-      alert("Deployment failed. See console for details.");
-    } finally {
-      setDeploying(false);
+  // --- NEW SIMPLE HANDLER ---
+  const handleOpenLiveLink = () => {
+    if (!variant?.id) {
+      alert("Error: No Variant ID found.");
+      return;
     }
+    
+    // Construct the public link
+    const liveLink = `${window.location.origin}/view/${variant.id}`;
+    
+    // Open in new tab
+    window.open(liveLink, '_blank');
   };
 
   if (!open) return null;
@@ -729,7 +862,7 @@ export default function UiPreviewModal({ open, onClose, variant }) {
           </button>
         </div>
 
-        {/* --- MAIN CONTENT (The Iframe) --- */}
+        {/* --- MAIN CONTENT (The Preview) --- */}
         <div className="flex-1 bg-[#0f0c29] relative overflow-hidden">
           {loading && (
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0f0c29]">
@@ -752,25 +885,17 @@ export default function UiPreviewModal({ open, onClose, variant }) {
           </div>
 
           <button
-            onClick={handleDeploy}
-            disabled={loading || deploying || !code}
+            onClick={handleOpenLiveLink} // 👈 Calls the new simple function
+            disabled={loading || !code}
             className={`flex items-center gap-2 px-5 py-2.5 font-medium rounded-lg transition-all shadow-lg 
-              ${loading || deploying || !code 
+              ${loading || !code 
                 ? "bg-gray-700 text-gray-400 cursor-not-allowed" 
-                : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-900/20"
+                : "bg-green-600 hover:bg-green-500 text-white shadow-green-900/20"
               }`}
           >
-            {deploying ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Deploying to Vercel...
-              </>
-            ) : (
-              <>
-                <Rocket size={18} />
-                Deploy to Live
-              </>
-            )}
+            {/* Changed Icon and Text to reflect "Live Link" */}
+            <ExternalLink size={18} />
+            Open Live Link
           </button>
         </div>
       </div>

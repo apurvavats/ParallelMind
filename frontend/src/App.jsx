@@ -131,8 +131,9 @@ import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import History from "./pages/History";
-import HistoryDetails from "./pages/HistoryDetails"; 
+import HistoryDetails from "./pages/HistoryDetails";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import LiveView from "./pages/LiveView";
 
 // --- 1. PROTECT DASHBOARD ROUTES ---
 // If NOT logged in, kick them to Landing Page ("/")
@@ -158,31 +159,34 @@ export default function App() {
 
           {/* --- PUBLIC ROUTES (Landing, Login, Signup) --- */}
           {/* We wrap these so logged-in users don't see them */}
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               <PublicRoute>
                 <Landing />
               </PublicRoute>
-            } 
+            }
           />
-          <Route 
-            path="/login" 
+          <Route
+            path="/login"
             element={
               <PublicRoute>
                 <Login />
               </PublicRoute>
-            } 
+            }
           />
-          <Route 
-            path="/signup" 
+          <Route
+            path="/signup"
             element={
               <PublicRoute>
                 <Signup />
               </PublicRoute>
-            } 
+            }
           />
-
+          <Route
+            path="/view/:id"
+            element={<LiveView />}
+          />
           {/* --- PROTECTED ROUTES (Home, History, etc.) --- */}
           <Route
             path="/home"
@@ -201,7 +205,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/history/:id"
             element={
@@ -219,7 +223,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/contact"
             element={
