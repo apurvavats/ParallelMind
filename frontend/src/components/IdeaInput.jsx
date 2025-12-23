@@ -225,6 +225,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { VITE_API_URL } from "../config";
 
 export default function IdeaInput({ onResult }) {
   const [idea, setIdea] = useState("");
@@ -239,7 +240,7 @@ export default function IdeaInput({ onResult }) {
     try {
       // The backend route that creates project + variants
       const res = await axios.post(
-        "http://localhost:5000/projects/generate",
+        `${VITE_API_URL}/projects/generate`,
         { idea },
         { headers: { Authorization: `Bearer ${token}` } }
       );
