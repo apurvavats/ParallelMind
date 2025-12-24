@@ -1076,14 +1076,16 @@ import SimplePreview from "./SimplePreview";
 import { VITE_API_URL } from "../config";
 
 export default function UiPreviewModal({ open, onClose, variant }) {
-  const { token } = useAuth(); // Your Auth Token
+  const { token } = useAuth();
   
+  // --- THE FIX: TOKEN SANITIZATION ---
+  // We split the token by whitespace/newlines and take the first part.
+  // This removes any "VITE_API_URL=..." garbage attached to the end.
+  const cleanToken = token ? token.split(/[\s\n]+/)[0].trim() : null;
+
   const [code, setCode] = useState(null); 
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  // --- 1. REMOVED the 'createClient' and 'useMemo' block entirely ---
-  // We don't need it. We will use axios directly.
 
   useEffect(() => {
     if (!open || !variant) return;
@@ -1096,7 +1098,8 @@ export default function UiPreviewModal({ open, onClose, variant }) {
       .post(
         `${VITE_API_URL}/ui/generate`, 
         { variant },
-        { headers: { Authorization: `Bearer ${token}` } }
+        // Use cleanToken here
+        { headers: { Authorization: `Bearer ${cleanToken}` } }
       )
       .then((res) => {
         if (!res.data || !res.data.code) {
@@ -1111,15 +1114,15 @@ export default function UiPreviewModal({ open, onClose, variant }) {
         alert("Failed to generate UI. Check backend console.");
       })
       .finally(() => setLoading(false));
-  }, [open, variant, token]);
+  }, [open, variant, cleanToken]); // updated dependency
 
   const handleOpenLiveLink = async () => {
-    // 1. Safety Check: Ensure we have everything
+    // 1. Safety Check
     if (!variant?.id || !code) {
       alert("Error: Missing Data.");
       return;
     }
-    if (!token) {
+    if (!cleanToken) {
       alert("Error: You seem to be logged out. Please log in again.");
       return;
     }
@@ -1127,18 +1130,17 @@ export default function UiPreviewModal({ open, onClose, variant }) {
     try {
       setIsSaving(true);
 
-      // --- 2. THE FIX: Direct REST API Call ---
-      // Instead of the Supabase Client, we use Axios to hit the database directly.
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+      // 2. Direct REST API Call using cleanToken
       await axios.patch(
-        `${supabaseUrl}/rest/v1/variants?id=eq.${variant.id}`, // URL
-        { code: code }, // Body
+        `${supabaseUrl}/rest/v1/variants?id=eq.${variant.id}`, 
+        { code: code }, 
         {
           headers: {
             apikey: supabaseKey,
-            Authorization: `Bearer ${token}`, // Pass the user token explicitly
+            Authorization: `Bearer ${cleanToken}`, // 👈 The sanitized token
             "Content-Type": "application/json",
             Prefer: "return=minimal",
           },
@@ -1151,8 +1153,8 @@ export default function UiPreviewModal({ open, onClose, variant }) {
 
     } catch (err) {
       console.error("Save failed:", err);
-      // Detailed error logging
       if (err.response) {
+         // Log status and text for easier debugging
          alert(`Database Error: ${err.response.status} ${err.response.statusText}`);
       } else {
          alert(`Save Failed: ${err.message}`);
