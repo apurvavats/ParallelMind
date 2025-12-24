@@ -908,26 +908,182 @@
 
 
 
+// import { useEffect, useState } from "react";
+// import axios from "axios";
+// import { Loader2, X, ExternalLink } from "lucide-react";
+// import { useAuth } from "../context/AuthContext";
+// import SimplePreview from "./SimplePreview"; 
+// import { VITE_API_URL } from "../config";
+// import { createClient } from '@supabase/supabase-js'; // 👈 1. Import Supabase
+
+// // 2. Initialize Supabase
+// const supabase = createClient(
+//   import.meta.env.VITE_SUPABASE_URL,
+//   import.meta.env.VITE_SUPABASE_ANON_KEY
+// );
+
+// export default function UiPreviewModal({ open, onClose, variant }) {
+//   const { token } = useAuth();
+  
+//   const [code, setCode] = useState(null); 
+//   const [loading, setLoading] = useState(false);
+//   const [isSaving, setIsSaving] = useState(false); // 👈 3. Add Saving State
+
+//   useEffect(() => {
+//     if (!open || !variant) return;
+
+//     setCode(null);
+//     setLoading(true);
+
+//     // Fetch the raw code from your backend
+//     axios
+//       .post(
+//         `${VITE_API_URL}/ui/generate`, 
+//         { variant },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       )
+//       .then((res) => {
+//         if (!res.data || !res.data.code) {
+//           console.error("No code received:", res.data);
+//           alert("Backend sent empty code.");
+//           return;
+//         }
+//         setCode(res.data.code);
+//       })
+//       .catch((err) => {
+//         console.error("UI GENERATE ERR:", err);
+//         alert("Failed to generate UI. Check backend console.");
+//       })
+//       .finally(() => setLoading(false));
+//   }, [open, variant, token]);
+
+//   // --- 4. UPDATED HANDLER: SAVE THEN OPEN ---
+//   const handleOpenLiveLink = async () => {
+//     if (!variant?.id || !code) {
+//       alert("Error: Missing Data.");
+//       return;
+//     }
+    
+//     try {
+//       setIsSaving(true);
+
+//       // A. Save the generated code to Supabase first!
+//       const { error } = await supabase
+//         .from('variants')
+//         .update({ code: code }) 
+//         .eq('id', variant.id);
+
+//       if (error) {
+//         console.error("Supabase Save Error:", error);
+//         throw error;
+//       }
+
+//       // B. ONLY after saving, open the link
+//       const liveLink = `${window.location.origin}/view/${variant.id}`;
+//       window.open(liveLink, '_blank');
+
+//     } catch (err) {
+//       console.error("Save failed:", err);
+//       alert("Could not save design to database. Check console.");
+//     } finally {
+//       setIsSaving(false);
+//     }
+//   };
+
+//   if (!open) return null;
+
+//   return (
+//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+//       <div className="w-full max-w-6xl h-[90vh] bg-[#0b0520] rounded-2xl border border-gray-800 flex flex-col shadow-2xl overflow-hidden">
+        
+//         {/* --- HEADER --- */}
+//         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-[#151030]">
+//           <div>
+//             <h3 className="text-lg font-bold text-white">
+//               UI Preview
+//             </h3>
+//             <p className="text-xs text-gray-400">
+//               Generated based on: {variant?.variant_name || "Custom Prompt"}
+//             </p>
+//           </div>
+
+//           <button
+//             onClick={onClose}
+//             className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+//           >
+//             <X size={20} />
+//           </button>
+//         </div>
+
+//         {/* --- MAIN CONTENT --- */}
+//         <div className="flex-1 bg-[#0f0c29] relative overflow-hidden">
+//           {loading && (
+//             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0f0c29]">
+//               <Loader2 className="animate-spin text-purple-500 mb-4" size={40} />
+//               <p className="text-gray-400 animate-pulse">Generating your UI...</p>
+//             </div>
+//           )}
+
+//           {!loading && code && (
+//             <div className="w-full h-full">
+//                <SimplePreview code={code} />
+//             </div>
+//           )}
+//         </div>
+
+//         {/* --- FOOTER --- */}
+//         <div className="p-4 border-t border-gray-800 bg-[#151030] flex items-center justify-between">
+//           <div className="text-sm text-gray-400">
+//              Preview running in local browser environment.
+//           </div>
+
+//           <button
+//             onClick={handleOpenLiveLink} // Calls the saving function
+//             disabled={loading || !code || isSaving}
+//             className={`flex items-center gap-2 px-5 py-2.5 font-medium rounded-lg transition-all shadow-lg 
+//               ${loading || !code || isSaving
+//                 ? "bg-gray-700 text-gray-400 cursor-not-allowed" 
+//                 : "bg-green-600 hover:bg-green-500 text-white shadow-green-900/20"
+//               }`}
+//           >
+//             {isSaving ? (
+//                <>
+//                  <Loader2 size={18} className="animate-spin" />
+//                  Saving...
+//                </>
+//             ) : (
+//                <>
+//                  <ExternalLink size={18} />
+//                  Open Live Link
+//                </>
+//             )}
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Loader2, X, ExternalLink } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import SimplePreview from "./SimplePreview"; 
 import { VITE_API_URL } from "../config";
-import { createClient } from '@supabase/supabase-js'; // 👈 1. Import Supabase
-
-// 2. Initialize Supabase
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 export default function UiPreviewModal({ open, onClose, variant }) {
-  const { token } = useAuth();
+  const { token } = useAuth(); // Your Auth Token
   
   const [code, setCode] = useState(null); 
   const [loading, setLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // 👈 3. Add Saving State
+  const [isSaving, setIsSaving] = useState(false);
+
+  // --- 1. REMOVED the 'createClient' and 'useMemo' block entirely ---
+  // We don't need it. We will use axios directly.
 
   useEffect(() => {
     if (!open || !variant) return;
@@ -957,34 +1113,50 @@ export default function UiPreviewModal({ open, onClose, variant }) {
       .finally(() => setLoading(false));
   }, [open, variant, token]);
 
-  // --- 4. UPDATED HANDLER: SAVE THEN OPEN ---
   const handleOpenLiveLink = async () => {
+    // 1. Safety Check: Ensure we have everything
     if (!variant?.id || !code) {
       alert("Error: Missing Data.");
+      return;
+    }
+    if (!token) {
+      alert("Error: You seem to be logged out. Please log in again.");
       return;
     }
     
     try {
       setIsSaving(true);
 
-      // A. Save the generated code to Supabase first!
-      const { error } = await supabase
-        .from('variants')
-        .update({ code: code }) 
-        .eq('id', variant.id);
+      // --- 2. THE FIX: Direct REST API Call ---
+      // Instead of the Supabase Client, we use Axios to hit the database directly.
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      if (error) {
-        console.error("Supabase Save Error:", error);
-        throw error;
-      }
+      await axios.patch(
+        `${supabaseUrl}/rest/v1/variants?id=eq.${variant.id}`, // URL
+        { code: code }, // Body
+        {
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${token}`, // Pass the user token explicitly
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+        }
+      );
 
-      // B. ONLY after saving, open the link
+      // 3. Open the link on success
       const liveLink = `${window.location.origin}/view/${variant.id}`;
       window.open(liveLink, '_blank');
 
     } catch (err) {
       console.error("Save failed:", err);
-      alert("Could not save design to database. Check console.");
+      // Detailed error logging
+      if (err.response) {
+         alert(`Database Error: ${err.response.status} ${err.response.statusText}`);
+      } else {
+         alert(`Save Failed: ${err.message}`);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -1038,7 +1210,7 @@ export default function UiPreviewModal({ open, onClose, variant }) {
           </div>
 
           <button
-            onClick={handleOpenLiveLink} // Calls the saving function
+            onClick={handleOpenLiveLink} 
             disabled={loading || !code || isSaving}
             className={`flex items-center gap-2 px-5 py-2.5 font-medium rounded-lg transition-all shadow-lg 
               ${loading || !code || isSaving
